@@ -1,5 +1,6 @@
 import { CallType } from '../models';
 import { IWorkflowStepDefinition } from '../models';
+import { IOCC_CCF_DROPDOWN_OPTIONS, HSE_ON_CALL_DROPDOWN_OPTIONS } from './notification-contacts';
 
 /**
  * Complete workflow definitions for all 10 CRC dispatch call types.
@@ -40,8 +41,8 @@ export const WORKFLOW_STEPS: Record<CallType, ReadonlyArray<IWorkflowStepDefinit
       fields: [
         // Operations
         { name: 'operationsHeader', label: 'Operations', type: 'section-header', isRequired: false },
-        { name: 'ioccCcfNotified', label: 'IOCC or CCF', type: 'notification-checkbox', isRequired: false, autoTimestamp: true },
-        { name: 'hseOnCallNotified', label: 'HSE On-Call', type: 'notification-checkbox', isRequired: false, autoTimestamp: true },
+        { name: 'ioccCcfSelection', label: 'IOCC / CCF', type: 'select', isRequired: false, options: [...IOCC_CCF_DROPDOWN_OPTIONS] },
+        { name: 'hseOnCallSelection', label: 'HSE On-Call', type: 'select', isRequired: false, options: [...HSE_ON_CALL_DROPDOWN_OPTIONS] },
 
         // If Reportable
         { name: 'reportableHeader', label: 'If Reportable', type: 'section-header', isRequired: false, conditionalOn: { field: 'reportableSpill', value: 'Yes', step: 0 } },
@@ -127,10 +128,10 @@ export const WORKFLOW_STEPS: Record<CallType, ReadonlyArray<IWorkflowStepDefinit
           ],
         },
 
-        // Standard
-        { name: 'standardHeader', label: 'Standard', type: 'section-header', isRequired: false },
-        { name: 'hseOnCallNotified', label: 'HSE On-Call', type: 'notification-checkbox', isRequired: false, autoTimestamp: true },
-        { name: 'ioccCcfNotified', label: 'IOCC or CCF', type: 'notification-checkbox', isRequired: false, autoTimestamp: true },
+        // Internal Notifications
+        { name: 'internalHeader', label: 'Internal Notifications', type: 'section-header', isRequired: false },
+        { name: 'ioccCcfSelection', label: 'IOCC / CCF', type: 'select', isRequired: false, options: [...IOCC_CCF_DROPDOWN_OPTIONS] },
+        { name: 'hseOnCallSelection', label: 'HSE On-Call', type: 'select', isRequired: false, options: [...HSE_ON_CALL_DROPDOWN_OPTIONS] },
         {
           name: 'calGemNotified', label: 'CalGEM (at HSE direction)', type: 'notification-checkbox', isRequired: false, autoTimestamp: true,
           subFields: [
@@ -190,9 +191,10 @@ export const WORKFLOW_STEPS: Record<CallType, ReadonlyArray<IWorkflowStepDefinit
           ],
         },
 
-        // Standard
-        { name: 'standardHeader', label: 'Standard', type: 'section-header', isRequired: false },
-        { name: 'hseOnCallNotified', label: 'HSE On-Call', type: 'notification-checkbox', isRequired: false, autoTimestamp: true },
+        // Internal Notifications
+        { name: 'internalHeader', label: 'Internal Notifications', type: 'section-header', isRequired: false },
+        { name: 'ioccCcfSelection', label: 'IOCC / CCF', type: 'select', isRequired: false, options: [...IOCC_CCF_DROPDOWN_OPTIONS] },
+        { name: 'hseOnCallSelection', label: 'HSE On-Call', type: 'select', isRequired: false, options: [...HSE_ON_CALL_DROPDOWN_OPTIONS] },
 
         // Documentation
         { name: 'documentationHeader', label: 'Documentation', type: 'section-header', isRequired: false },
@@ -242,10 +244,10 @@ export const WORKFLOW_STEPS: Record<CallType, ReadonlyArray<IWorkflowStepDefinit
           conditionalOn: { field: 'emsNeeded', value: 'Yes', step: 0 },
         },
 
-        // Standard
-        { name: 'standardHeader', label: 'Standard', type: 'section-header', isRequired: false },
-        { name: 'hseOnCallNotified', label: 'HSE On-Call', type: 'notification-checkbox', isRequired: false, autoTimestamp: true },
-        { name: 'ioccCcfNotified', label: 'IOCC or CCF', type: 'notification-checkbox', isRequired: false, autoTimestamp: true },
+        // Internal Notifications
+        { name: 'internalHeader', label: 'Internal Notifications', type: 'section-header', isRequired: false },
+        { name: 'ioccCcfSelection', label: 'IOCC / CCF', type: 'select', isRequired: false, options: [...IOCC_CCF_DROPDOWN_OPTIONS] },
+        { name: 'hseOnCallSelection', label: 'HSE On-Call', type: 'select', isRequired: false, options: [...HSE_ON_CALL_DROPDOWN_OPTIONS] },
         { name: 'wellServiceTeam', label: 'Well Service Team (if instructed by HSE)', type: 'notification-checkbox', isRequired: false, autoTimestamp: true },
 
         // Reportable determination (made during the call)
@@ -303,7 +305,10 @@ export const WORKFLOW_STEPS: Record<CallType, ReadonlyArray<IWorkflowStepDefinit
       description: 'Complete notifications and documentation',
       isRequired: true,
       fields: [
-        { name: 'hseOnCallNotified', label: 'HSE On-Call', type: 'notification-checkbox', isRequired: false, autoTimestamp: true },
+        // Internal Notifications
+        { name: 'internalHeader', label: 'Internal Notifications', type: 'section-header', isRequired: false },
+        { name: 'ioccCcfSelection', label: 'IOCC / CCF', type: 'select', isRequired: false, options: [...IOCC_CCF_DROPDOWN_OPTIONS] },
+        { name: 'hseOnCallSelection', label: 'HSE On-Call', type: 'select', isRequired: false, options: [...HSE_ON_CALL_DROPDOWN_OPTIONS] },
 
         // If DOT line
         { name: 'dotHeader', label: 'If DOT line — remind HSE to coordinate with:', type: 'section-header', isRequired: false, conditionalOn: { field: 'dotLineInvolved', value: 'Yes', step: 0 } },
@@ -345,7 +350,9 @@ export const WORKFLOW_STEPS: Record<CallType, ReadonlyArray<IWorkflowStepDefinit
       description: 'Complete notifications and documentation',
       isRequired: true,
       fields: [
-        { name: 'hseOnCallNotified', label: 'HSE On-Call (to confirm breakdown)', type: 'notification-checkbox', isRequired: false, autoTimestamp: true },
+        { name: 'internalHeader', label: 'Internal Notifications', type: 'section-header', isRequired: false },
+        { name: 'ioccCcfSelection', label: 'IOCC / CCF', type: 'select', isRequired: false, options: [...IOCC_CCF_DROPDOWN_OPTIONS] },
+        { name: 'hseOnCallSelection', label: 'HSE On-Call (to confirm breakdown)', type: 'select', isRequired: false, options: [...HSE_ON_CALL_DROPDOWN_OPTIONS] },
 
         // APCD Notification
         { name: 'apcdHeader', label: 'APCD Notification', type: 'section-header', isRequired: false },
@@ -410,10 +417,10 @@ export const WORKFLOW_STEPS: Record<CallType, ReadonlyArray<IWorkflowStepDefinit
           conditionalOn: { field: 'emergencyNeeded', value: 'Yes', step: 0 },
         },
 
-        // Standard
-        { name: 'standardHeader', label: 'Standard', type: 'section-header', isRequired: false },
-        { name: 'hseOnCallNotified', label: 'HSE On-Call', type: 'notification-checkbox', isRequired: false, autoTimestamp: true },
-        { name: 'ioccCcfNotified', label: 'IOCC or CCF (if pipeline/wellhead involved)', type: 'notification-checkbox', isRequired: false, autoTimestamp: true },
+        // Internal Notifications
+        { name: 'internalHeader', label: 'Internal Notifications', type: 'section-header', isRequired: false },
+        { name: 'ioccCcfSelection', label: 'IOCC / CCF', type: 'select', isRequired: false, options: [...IOCC_CCF_DROPDOWN_OPTIONS] },
+        { name: 'hseOnCallSelection', label: 'HSE On-Call', type: 'select', isRequired: false, options: [...HSE_ON_CALL_DROPDOWN_OPTIONS] },
 
         // Documentation
         { name: 'documentationHeader', label: 'Documentation', type: 'section-header', isRequired: false },
@@ -464,7 +471,7 @@ export const WORKFLOW_STEPS: Record<CallType, ReadonlyArray<IWorkflowStepDefinit
 
         // After hours
         { name: 'afterHoursHeader', label: 'After hours', type: 'section-header', isRequired: false },
-        { name: 'hseOnCallNotified', label: 'HSE On-Call', type: 'notification-checkbox', isRequired: false, autoTimestamp: true },
+        { name: 'hseOnCallSelection', label: 'HSE On-Call', type: 'select', isRequired: false, options: [...HSE_ON_CALL_DROPDOWN_OPTIONS] },
 
         // If loss > $950 or vandalism > $400
         { name: 'kcsoHeader', label: 'If loss > $950 or vandalism > $400', type: 'section-header', isRequired: false },
@@ -512,10 +519,10 @@ export const WORKFLOW_STEPS: Record<CallType, ReadonlyArray<IWorkflowStepDefinit
       description: 'Complete notifications and documentation',
       isRequired: true,
       fields: [
-        // Standard
-        { name: 'standardHeader', label: 'Standard', type: 'section-header', isRequired: false },
-        { name: 'hseOnCallNotified', label: 'HSE On-Call', type: 'notification-checkbox', isRequired: false, autoTimestamp: true },
-        { name: 'ioccCcfNotified', label: 'IOCC/CCF (if operational impact)', type: 'notification-checkbox', isRequired: false, autoTimestamp: true },
+        // Internal Notifications
+        { name: 'internalHeader', label: 'Internal Notifications', type: 'section-header', isRequired: false },
+        { name: 'ioccCcfSelection', label: 'IOCC / CCF', type: 'select', isRequired: false, options: [...IOCC_CCF_DROPDOWN_OPTIONS] },
+        { name: 'hseOnCallSelection', label: 'HSE On-Call', type: 'select', isRequired: false, options: [...HSE_ON_CALL_DROPDOWN_OPTIONS] },
 
         // Documentation
         { name: 'documentationHeader', label: 'Documentation', type: 'section-header', isRequired: false },
