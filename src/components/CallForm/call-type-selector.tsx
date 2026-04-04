@@ -17,9 +17,7 @@ import {
   PlugDisconnectedRegular,
   CloudFlowRegular,
   VehicleCarRegular,
-  AlertUrgentRegular,
   ShieldLockRegular,
-  AlertRegular,
   WeatherThunderstormRegular,
   ClipboardRegular,
 } from '@fluentui/react-icons';
@@ -29,16 +27,14 @@ import { CRC_COLORS, CRC_TYPOGRAPHY } from '../../config/theme';
 
 // ── Icon map per call type ──────────────────────────────────────────
 const CALL_TYPE_ICONS: Record<CallType, React.ReactElement> = {
-  [CallType.Spill]: <BeakerRegular />,
+  [CallType.SpillsReleases]: <BeakerRegular />,
   [CallType.Fire]: <FireRegular />,
   [CallType.InjuryIllness]: <HeartPulseRegular />,
   [CallType.WellRelease]: <WarningRegular />,
   [CallType.LineStrike]: <PlugDisconnectedRegular />,
   [CallType.AirBreakdown]: <CloudFlowRegular />,
   [CallType.MVI]: <VehicleCarRegular />,
-  [CallType.GasHazRelease]: <AlertUrgentRegular />,
   [CallType.SecurityEvent]: <ShieldLockRegular />,
-  [CallType.PipelineAlarm]: <AlertRegular />,
   [CallType.WeatherAlert]: <WeatherThunderstormRegular />,
   [CallType.GeneralOperations]: <ClipboardRegular />,
 };

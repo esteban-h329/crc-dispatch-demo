@@ -10,15 +10,6 @@ export interface IRegulatoryTimerConfig {
   readonly triggerStep: number;
 }
 
-export interface IRoiAutoCheckConfig {
-  readonly always: boolean;
-  readonly conditionalFields?: ReadonlyArray<{
-    readonly field: string;
-    readonly value: string | ReadonlyArray<string>;
-    readonly step: number;
-  }>;
-}
-
 export interface ICallTypeConfig {
   readonly type: CallType;
   readonly label: string;
@@ -27,27 +18,22 @@ export interface ICallTypeConfig {
   readonly defaultPriority: CallPriority;
   readonly steps: ReadonlyArray<IWorkflowStepDefinition>;
   readonly regulatoryTimer?: IRegulatoryTimerConfig;
-  readonly roiAutoCheck?: IRoiAutoCheckConfig;
 }
 
 export const CALL_TYPE_CONFIGS: ReadonlyArray<ICallTypeConfig> = [
   {
-    type: CallType.Spill,
-    label: 'Spill',
-    description: 'Report and manage spill incidents',
+    type: CallType.SpillsReleases,
+    label: 'Spills / Releases',
+    description: 'Report and manage spill and release incidents',
     icon: 'Beaker',
     defaultPriority: CallPriority.High,
-    steps: WORKFLOW_STEPS[CallType.Spill],
+    steps: WORKFLOW_STEPS[CallType.SpillsReleases],
     regulatoryTimer: {
       durationMinutes: 30,
       label: 'CalOES / NRC / OSRO',
       triggerField: 'reportableSpill',
       triggerValue: 'Yes',
       triggerStep: 0,
-    },
-    roiAutoCheck: {
-      always: false,
-      conditionalFields: [{ field: 'reportableSpill', value: 'Yes', step: 0 }],
     },
   },
   {
@@ -57,10 +43,6 @@ export const CALL_TYPE_CONFIGS: ReadonlyArray<ICallTypeConfig> = [
     icon: 'Fire',
     defaultPriority: CallPriority.Critical,
     steps: WORKFLOW_STEPS[CallType.Fire],
-    roiAutoCheck: {
-      always: false,
-      conditionalFields: [{ field: 'pastIncipient', value: 'Yes', step: 0 }],
-    },
   },
   {
     type: CallType.InjuryIllness,
@@ -69,7 +51,6 @@ export const CALL_TYPE_CONFIGS: ReadonlyArray<ICallTypeConfig> = [
     icon: 'HeartPulse',
     defaultPriority: CallPriority.High,
     steps: WORKFLOW_STEPS[CallType.InjuryIllness],
-    roiAutoCheck: { always: true },
   },
   {
     type: CallType.WellRelease,
@@ -85,7 +66,6 @@ export const CALL_TYPE_CONFIGS: ReadonlyArray<ICallTypeConfig> = [
       triggerValue: 'Yes',
       triggerStep: 1,
     },
-    roiAutoCheck: { always: true },
   },
   {
     type: CallType.LineStrike,
@@ -94,13 +74,6 @@ export const CALL_TYPE_CONFIGS: ReadonlyArray<ICallTypeConfig> = [
     icon: 'PlugDisconnected',
     defaultPriority: CallPriority.High,
     steps: WORKFLOW_STEPS[CallType.LineStrike],
-    roiAutoCheck: {
-      always: false,
-      conditionalFields: [
-        { field: 'injuries', value: 'Yes', step: 0 },
-        { field: 'dotLineInvolved', value: 'Yes', step: 0 },
-      ],
-    },
   },
   {
     type: CallType.AirBreakdown,
@@ -116,7 +89,6 @@ export const CALL_TYPE_CONFIGS: ReadonlyArray<ICallTypeConfig> = [
       triggerValue: '_always',
       triggerStep: 0,
     },
-    roiAutoCheck: { always: false },
   },
   {
     type: CallType.MVI,
@@ -125,26 +97,6 @@ export const CALL_TYPE_CONFIGS: ReadonlyArray<ICallTypeConfig> = [
     icon: 'VehicleCar',
     defaultPriority: CallPriority.High,
     steps: WORKFLOW_STEPS[CallType.MVI],
-    roiAutoCheck: {
-      always: false,
-      conditionalFields: [{ field: 'anyoneInjured', value: 'Yes', step: 0 }],
-    },
-  },
-  {
-    type: CallType.GasHazRelease,
-    label: 'Gas / Haz Release',
-    description: 'Report gas or hazardous material releases',
-    icon: 'AlertUrgent',
-    defaultPriority: CallPriority.Critical,
-    steps: WORKFLOW_STEPS[CallType.GasHazRelease],
-    regulatoryTimer: {
-      durationMinutes: 30,
-      label: 'CalOES / NRC',
-      triggerField: 'reportable',
-      triggerValue: 'Yes',
-      triggerStep: 1,
-    },
-    roiAutoCheck: { always: true },
   },
   {
     type: CallType.SecurityEvent,
@@ -153,15 +105,6 @@ export const CALL_TYPE_CONFIGS: ReadonlyArray<ICallTypeConfig> = [
     icon: 'ShieldLock',
     defaultPriority: CallPriority.Medium,
     steps: WORKFLOW_STEPS[CallType.SecurityEvent],
-    roiAutoCheck: { always: false },
-  },
-  {
-    type: CallType.PipelineAlarm,
-    label: 'Pipeline Alarm',
-    description: 'Respond to pipeline alarm notifications',
-    icon: 'Alert',
-    defaultPriority: CallPriority.High,
-    steps: WORKFLOW_STEPS[CallType.PipelineAlarm],
   },
   {
     type: CallType.WeatherAlert,

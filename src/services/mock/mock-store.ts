@@ -42,7 +42,7 @@ function seedData(): void {
   const sampleCall2: ICall = {
     id: nextId(),
     title: 'CALL-20260209-002',
-    callType: CallType.Spill,
+    callType: CallType.SpillsReleases,
     dispatcherId: 1,
     dispatcherName: 'John Dispatcher',
     startTime: new Date('2026-02-09T14:00:00'),

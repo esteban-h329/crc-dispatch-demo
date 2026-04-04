@@ -1,14 +1,12 @@
 export enum CallType {
-  Spill = 'Spill',
+  SpillsReleases = 'Spills / Releases',
   Fire = 'Fire',
   InjuryIllness = 'Injury / Illness',
   WellRelease = 'Well Release',
   LineStrike = 'Line Strike',
   AirBreakdown = 'Air Breakdown',
   MVI = 'Motor Vehicle Incident',
-  GasHazRelease = 'Gas / Hazardous Material Release',
   SecurityEvent = 'Security Event',
-  PipelineAlarm = 'Pipeline Alarm',
   WeatherAlert = 'Weather Alert',
   GeneralOperations = 'General Operations',
 }

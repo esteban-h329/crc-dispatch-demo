@@ -5,7 +5,6 @@ import { ICallTypeConfig, getCallTypeConfig } from '../../config/call-types';
 import { callsService, callStepsService, callNotesService } from '../../services';
 import { NoteType } from '../../models';
 import { useAppContext } from '../../context/AppContext';
-import { evaluateRoiAutoCheck } from '../../utils/roi-evaluator';
 import { getLocationById } from '../../config/location-data';
 
 export type CallPhase = 'type-selection' | 'workflow-steps' | 'completed';
@@ -58,21 +57,6 @@ export const useCallFormWorkflow = (
   const autoSaveTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const steps = selectedCallType?.steps ?? [];
-
-  // ROI auto-check: when step data changes, evaluate and auto-set roiRequired in Step 2
-  const prevRoiRef = React.useRef(false);
-  React.useEffect(() => {
-    if (!selectedCallType?.roiAutoCheck) return;
-    const shouldCheck = evaluateRoiAutoCheck(selectedCallType.roiAutoCheck, stepDataMap);
-    if (shouldCheck && !prevRoiRef.current) {
-      // Auto-set roiRequired in Step 2 (index 1) data
-      setStepDataMap((prev) => ({
-        ...prev,
-        1: { ...prev[1], roiRequired: true },
-      }));
-    }
-    prevRoiRef.current = shouldCheck;
-  }, [selectedCallType, stepDataMap]);
 
   // Cleanup auto-save timer on unmount
   React.useEffect(() => {

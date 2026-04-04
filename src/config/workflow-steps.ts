@@ -2,7 +2,7 @@ import { CallType } from '../models';
 import { IWorkflowStepDefinition } from '../models';
 
 /**
- * Complete workflow definitions for all 12 CRC dispatch call types.
+ * Complete workflow definitions for all 10 CRC dispatch call types.
  * Each call type has exactly 2 steps: Quick Intake and Notifications & Close.
  *
  * Field naming conventions:
@@ -15,20 +15,20 @@ import { IWorkflowStepDefinition } from '../models';
 export const WORKFLOW_STEPS: Record<CallType, ReadonlyArray<IWorkflowStepDefinition>> = {
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // 1. SPILL — Priority: High, Timer: 30 min
+  // 1. SPILLS / RELEASES — Priority: High, Timer: 30 min
   // ─────────────────────────────────────────────────────────────────────────────
-  [CallType.Spill]: [
+  [CallType.SpillsReleases]: [
     {
       stepNumber: 1,
       title: 'Quick Intake',
-      description: 'Gather initial details about the spill',
+      description: 'Gather initial details about the spill or release',
       isRequired: true,
       fields: [
         { name: 'callerName', label: 'Caller Name', type: 'text', isRequired: true },
         { name: 'contactNumber', label: 'Contact Number', type: 'text', isRequired: true },
         { name: 'location', label: 'Location', type: 'location-picker', isRequired: true },
         { name: 'reportableSpill', label: 'Reportable Spill?', type: 'select', isRequired: true, options: ['Yes', 'No', 'Unknown'] },
-        { name: 'material', label: 'Material', type: 'select', isRequired: true, options: ['Oil', 'Produced Water', 'Other'] },
+        { name: 'material', label: 'Material', type: 'select', isRequired: true, options: ['Oil', 'Produced Water', 'Oil and Produced Water', 'Steam', 'Acrolein', 'Anhydrous Ammonia', 'Aqueous Ammonia', 'CO2'] },
         { name: 'briefDescription', label: 'Brief Description', type: 'textarea', isRequired: true },
       ],
     },
@@ -80,7 +80,6 @@ export const WORKFLOW_STEPS: Record<CallType, ReadonlyArray<IWorkflowStepDefinit
         // Documentation
         { name: 'documentationHeader', label: 'Documentation', type: 'section-header', isRequired: false },
         { name: 'kmsNumber', label: 'KMS #', type: 'text', isRequired: false },
-        { name: 'roiRequired', label: 'ROI Required?', type: 'checkbox', isRequired: false },
         { name: 'notes', label: 'Notes', type: 'textarea', isRequired: false },
       ],
     },
@@ -142,13 +141,9 @@ export const WORKFLOW_STEPS: Record<CallType, ReadonlyArray<IWorkflowStepDefinit
         // If applicable
         { name: 'ifApplicableHeader', label: 'If applicable', type: 'section-header', isRequired: false },
         { name: 'windWolvesNotified', label: 'Wind Wolves Preserve (Pleito/Landslide/Pioneer/Metson)', type: 'notification-checkbox', isRequired: false, autoTimestamp: true },
-        { name: 'icsActivation', label: 'ICS Activation requested?', type: 'checkbox', isRequired: false },
-
         // Documentation
         { name: 'documentationHeader', label: 'Documentation', type: 'section-header', isRequired: false },
         { name: 'kmsNumber', label: 'KMS #', type: 'text', isRequired: false },
-        { name: 'roiRequired', label: 'ROI Required?', type: 'checkbox', isRequired: false },
-        { name: 'alertMediaSent', label: 'AlertMedia sent?', type: 'select', isRequired: false, options: ['Yes', 'No'] },
         { name: 'notes', label: 'Notes', type: 'textarea', isRequired: false },
       ],
     },
@@ -194,10 +189,6 @@ export const WORKFLOW_STEPS: Record<CallType, ReadonlyArray<IWorkflowStepDefinit
             { name: 'gateIntersection', label: 'Gate/Intersection', placeholder: 'Gate/Intersection' },
           ],
         },
-        {
-          name: 'alertMediaEmrt', label: 'AlertMedia "Emergency Medical Response Team" (Belridge only)', type: 'notification-checkbox', isRequired: false, autoTimestamp: true,
-          conditionalOn: { field: 'emsRequired', value: 'Yes', step: 0 },
-        },
 
         // Standard
         { name: 'standardHeader', label: 'Standard', type: 'section-header', isRequired: false },
@@ -206,8 +197,6 @@ export const WORKFLOW_STEPS: Record<CallType, ReadonlyArray<IWorkflowStepDefinit
         // Documentation
         { name: 'documentationHeader', label: 'Documentation', type: 'section-header', isRequired: false },
         { name: 'kmsNumber', label: 'KMS #', type: 'text', isRequired: false },
-        { name: 'roiRequired', label: 'ROI Required?', type: 'checkbox', isRequired: false },
-        { name: 'alertMediaSent', label: 'AlertMedia sent?', type: 'select', isRequired: false, options: ['Yes', 'No', 'N/A'] },
         { name: 'notes', label: 'Notes', type: 'textarea', isRequired: false },
       ],
     },
@@ -282,7 +271,6 @@ export const WORKFLOW_STEPS: Record<CallType, ReadonlyArray<IWorkflowStepDefinit
         // Documentation
         { name: 'documentationHeader', label: 'Documentation', type: 'section-header', isRequired: false },
         { name: 'kmsNumber', label: 'KMS #', type: 'text', isRequired: false },
-        { name: 'roiRequired', label: 'ROI Required?', type: 'checkbox', isRequired: false },
         { name: 'notes', label: 'Notes', type: 'textarea', isRequired: false },
       ],
     },
@@ -326,7 +314,6 @@ export const WORKFLOW_STEPS: Record<CallType, ReadonlyArray<IWorkflowStepDefinit
         // Documentation
         { name: 'documentationHeader', label: 'Documentation', type: 'section-header', isRequired: false },
         { name: 'kmsNumber', label: 'KMS #', type: 'text', isRequired: false },
-        { name: 'roiRequired', label: 'ROI Required?', type: 'checkbox', isRequired: false },
         { name: 'notes', label: 'Notes', type: 'textarea', isRequired: false },
       ],
     },
@@ -378,7 +365,6 @@ export const WORKFLOW_STEPS: Record<CallType, ReadonlyArray<IWorkflowStepDefinit
         // Documentation
         { name: 'documentationHeader', label: 'Documentation', type: 'section-header', isRequired: false },
         { name: 'kmsNumber', label: 'KMS #', type: 'text', isRequired: false },
-        { name: 'roiRequired', label: 'ROI Required?', type: 'checkbox', isRequired: false },
         { name: 'notes', label: 'Notes', type: 'textarea', isRequired: false },
       ],
     },
@@ -423,10 +409,6 @@ export const WORKFLOW_STEPS: Record<CallType, ReadonlyArray<IWorkflowStepDefinit
           name: 'escortCoordinated', label: 'Escort coordinated', type: 'notification-checkbox', isRequired: false, autoTimestamp: true,
           conditionalOn: { field: 'emergencyNeeded', value: 'Yes', step: 0 },
         },
-        {
-          name: 'alertMediaEmrt', label: 'AlertMedia "Emergency Medical Response Team" (Belridge only)', type: 'notification-checkbox', isRequired: false, autoTimestamp: true,
-          conditionalOn: { field: 'emergencyNeeded', value: 'Yes', step: 0 },
-        },
 
         // Standard
         { name: 'standardHeader', label: 'Standard', type: 'section-header', isRequired: false },
@@ -436,92 +418,13 @@ export const WORKFLOW_STEPS: Record<CallType, ReadonlyArray<IWorkflowStepDefinit
         // Documentation
         { name: 'documentationHeader', label: 'Documentation', type: 'section-header', isRequired: false },
         { name: 'kmsNumber', label: 'KMS #', type: 'text', isRequired: false },
-        { name: 'roiRequired', label: 'ROI Required?', type: 'checkbox', isRequired: false },
         { name: 'notes', label: 'Notes', type: 'textarea', isRequired: false },
       ],
     },
   ],
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // 8. GAS / HAZARDOUS MATERIAL RELEASE — Priority: Critical, Timer: 30 min
-  // ─────────────────────────────────────────────────────────────────────────────
-  [CallType.GasHazRelease]: [
-    {
-      stepNumber: 1,
-      title: 'Quick Intake',
-      description: 'Gather initial details about the gas or hazardous material release',
-      isRequired: true,
-      fields: [
-        { name: 'callerName', label: 'Caller Name', type: 'text', isRequired: true },
-        { name: 'contactNumber', label: 'Contact Number', type: 'text', isRequired: true },
-        { name: 'location', label: 'Location', type: 'location-picker', isRequired: true },
-        { name: 'typeOfMaterial', label: 'Type of Material', type: 'text', isRequired: true },
-        { name: 'activeRelease', label: 'Active Release?', type: 'select', isRequired: true, options: ['Yes', 'No'] },
-        { name: 'dotPipelineInvolved', label: 'DOT Pipeline involved?', type: 'select', isRequired: true, options: ['Yes', 'No'] },
-        { name: 'impactsToPublic', label: 'Impacts to public?', type: 'select', isRequired: true, options: ['Yes', 'No'] },
-        { name: 'briefDescription', label: 'Brief Description', type: 'textarea', isRequired: true },
-      ],
-    },
-    {
-      stepNumber: 2,
-      title: 'Notifications & Close',
-      description: 'Complete notifications and documentation',
-      isRequired: true,
-      fields: [
-        // Standard
-        { name: 'standardHeader', label: 'Standard', type: 'section-header', isRequired: false },
-        { name: 'hseOnCallNotified', label: 'HSE On-Call', type: 'notification-checkbox', isRequired: false, autoTimestamp: true },
-        { name: 'ioccCcfNotified', label: 'IOCC or CCF', type: 'notification-checkbox', isRequired: false, autoTimestamp: true },
-        { name: 'qiNotified', label: 'QI (if caller was Area Operator)', type: 'notification-checkbox', isRequired: false, autoTimestamp: true },
-
-        // If DOT + Elk Hills
-        { name: 'dotElkHillsHeader', label: 'If DOT + Elk Hills — remind HSE to coordinate with:', type: 'section-header', isRequired: false, conditionalOn: { field: 'dotPipelineInvolved', value: 'Yes', step: 0 } },
-        { name: 'brookeGomezPhone', label: 'Brooke Gomez', type: 'phone-display', isRequired: false, phoneNumber: '661-788-9204', conditionalOn: { field: 'dotPipelineInvolved', value: 'Yes', step: 0 } },
-        { name: 'esmeraldaMacedoPhone', label: 'Esmeralda Macedo', type: 'phone-display', isRequired: false, phoneNumber: '562-331-4841', conditionalOn: { field: 'dotPipelineInvolved', value: 'Yes', step: 0 } },
-        { name: 'shawnRasmussenPhone', label: 'Shawn Rasmussen', type: 'phone-display', isRequired: false, phoneNumber: '661-401-1879', conditionalOn: { field: 'dotPipelineInvolved', value: 'Yes', step: 0 } },
-
-        // Reportable determination
-        { name: 'reportableHeader', label: 'Reportable Determination', type: 'section-header', isRequired: false },
-        { name: 'reportable', label: 'Reportable?', type: 'select', isRequired: false, options: ['Yes', 'No'] },
-        {
-          name: 'calOesNotified', label: 'CalOES — 800-852-7550', type: 'notification-checkbox', isRequired: false, autoTimestamp: true,
-          phoneNumber: '800-852-7550',
-          conditionalOn: { field: 'reportable', value: 'Yes', step: 1 },
-          subFields: [
-            { name: 'calOesTime', label: 'Time' },
-          ],
-        },
-        {
-          name: 'nrcNotified', label: 'NRC — 800-424-8802', type: 'notification-checkbox', isRequired: false, autoTimestamp: true,
-          phoneNumber: '800-424-8802',
-          conditionalOn: { field: 'reportable', value: 'Yes', step: 1 },
-          subFields: [
-            { name: 'nrcTime', label: 'Time' },
-          ],
-        },
-        {
-          name: 'blmNotified', label: 'BLM — 661-391-6130', type: 'notification-checkbox', isRequired: false, autoTimestamp: true,
-          phoneNumber: '661-391-6130',
-          conditionalOn: { field: 'reportable', value: 'Yes', step: 1 },
-        },
-        { name: 'localFirePolice', label: 'Local Fire/Police (if public impact)', type: 'notification-checkbox', isRequired: false, autoTimestamp: true },
-
-        // EHPP
-        { name: 'ehppHeader', label: 'If EHPP', type: 'section-header', isRequired: false },
-        { name: 'cecNotified', label: 'California Energy Commission — (916) 839-0400', type: 'notification-checkbox', isRequired: false, autoTimestamp: true, phoneNumber: '(916) 839-0400' },
-
-        // Documentation
-        { name: 'documentationHeader', label: 'Documentation', type: 'section-header', isRequired: false },
-        { name: 'kmsNumber', label: 'KMS #', type: 'text', isRequired: false },
-        { name: 'roiRequired', label: 'ROI Required?', type: 'checkbox', isRequired: false },
-        { name: 'alertMediaSent', label: 'AlertMedia sent?', type: 'select', isRequired: false, options: ['Yes', 'No', 'N/A'] },
-        { name: 'notes', label: 'Notes', type: 'textarea', isRequired: false },
-      ],
-    },
-  ],
-
-  // ─────────────────────────────────────────────────────────────────────────────
-  // 9. SECURITY EVENT — Priority: Medium
+  // 8. SECURITY EVENT — Priority: Medium
   // ─────────────────────────────────────────────────────────────────────────────
   [CallType.SecurityEvent]: [
     {
@@ -579,52 +482,13 @@ export const WORKFLOW_STEPS: Record<CallType, ReadonlyArray<IWorkflowStepDefinit
         // Documentation
         { name: 'documentationHeader', label: 'Documentation', type: 'section-header', isRequired: false },
         { name: 'kmsNumber', label: 'KMS #', type: 'text', isRequired: false },
-        { name: 'roiRequired', label: 'ROI Required?', type: 'checkbox', isRequired: false },
         { name: 'notes', label: 'Notes', type: 'textarea', isRequired: false },
       ],
     },
   ],
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // 10. PIPELINE ALARM — Priority: High
-  // ─────────────────────────────────────────────────────────────────────────────
-  [CallType.PipelineAlarm]: [
-    {
-      stepNumber: 1,
-      title: 'Quick Intake',
-      description: 'Capture pipeline alarm information',
-      isRequired: true,
-      fields: [
-        { name: 'callerName', label: 'Caller Name', type: 'text', isRequired: true },
-        { name: 'contactNumber', label: 'Contact Number', type: 'text', isRequired: true },
-        { name: 'location', label: 'Location', type: 'location-picker', isRequired: true },
-        { name: 'alarmTypeDescription', label: 'Alarm type/description', type: 'text', isRequired: true },
-        { name: 'activeLeakConfirmed', label: 'Active leak or release confirmed?', type: 'select', isRequired: true, options: ['Yes', 'No', 'Unknown'] },
-        { name: 'briefDescription', label: 'Brief Description', type: 'textarea', isRequired: true },
-      ],
-    },
-    {
-      stepNumber: 2,
-      title: 'Notifications & Close',
-      description: 'Complete notifications and documentation',
-      isRequired: true,
-      fields: [
-        { name: 'ioccCcfNotified', label: 'IOCC or CCF', type: 'notification-checkbox', isRequired: false, autoTimestamp: true },
-        { name: 'hseOnCallNotified', label: 'HSE On-Call (if active leak confirmed)', type: 'notification-checkbox', isRequired: false, autoTimestamp: true },
-        { name: 'fieldPersonnelDispatched', label: 'Field personnel dispatched?', type: 'notification-checkbox', isRequired: false, autoTimestamp: true },
-
-        { name: 'escalationNote', label: 'If confirmed active incident → escalate to: Spill / Gas Release / Line Strike workflow as appropriate', type: 'section-header', isRequired: false },
-
-        // Documentation
-        { name: 'documentationHeader', label: 'Documentation', type: 'section-header', isRequired: false },
-        { name: 'kmsNumber', label: 'KMS #', type: 'text', isRequired: false },
-        { name: 'notes', label: 'Notes', type: 'textarea', isRequired: false },
-      ],
-    },
-  ],
-
-  // ─────────────────────────────────────────────────────────────────────────────
-  // 11. WEATHER ALERT — Priority: Medium
+  // 9. WEATHER ALERT — Priority: Medium
   // ─────────────────────────────────────────────────────────────────────────────
   [CallType.WeatherAlert]: [
     {
@@ -648,14 +512,6 @@ export const WORKFLOW_STEPS: Record<CallType, ReadonlyArray<IWorkflowStepDefinit
       description: 'Complete notifications and documentation',
       isRequired: true,
       fields: [
-        // If life/property threatening
-        { name: 'lifePropertyHeader', label: 'If life/property threatening', type: 'section-header', isRequired: false },
-        { name: 'alertMediaPushSent', label: 'AlertMedia PUSH sent (all employees)', type: 'notification-checkbox', isRequired: false, autoTimestamp: true },
-
-        // If awareness only
-        { name: 'awarenessHeader', label: 'If awareness only', type: 'section-header', isRequired: false },
-        { name: 'alertMediaEmailSent', label: 'AlertMedia EMAIL sent', type: 'notification-checkbox', isRequired: false, autoTimestamp: true },
-
         // Standard
         { name: 'standardHeader', label: 'Standard', type: 'section-header', isRequired: false },
         { name: 'hseOnCallNotified', label: 'HSE On-Call', type: 'notification-checkbox', isRequired: false, autoTimestamp: true },
@@ -670,7 +526,7 @@ export const WORKFLOW_STEPS: Record<CallType, ReadonlyArray<IWorkflowStepDefinit
   ],
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // 12. GENERAL OPERATIONS — Priority: Low
+  // 10. GENERAL OPERATIONS — Priority: Low
   // ─────────────────────────────────────────────────────────────────────────────
   [CallType.GeneralOperations]: [
     {
