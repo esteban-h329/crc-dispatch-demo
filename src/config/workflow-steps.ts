@@ -1,6 +1,6 @@
 import { CallType } from '../models';
 import { IWorkflowStepDefinition } from '../models';
-import { IOCC_CCF_DROPDOWN_OPTIONS, HSE_ON_CALL_DROPDOWN_OPTIONS } from './notification-contacts';
+import { IOCC_CCF_DROPDOWN_OPTIONS, HSE_ON_CALL_DROPDOWN_OPTIONS, QI_DROPDOWN_OPTIONS, OSRO_DROPDOWN_OPTIONS, NON_FIELD_LOCATIONS } from './notification-contacts';
 
 /**
  * Complete workflow definitions for all 10 CRC dispatch call types.
@@ -31,6 +31,12 @@ export const WORKFLOW_STEPS: Record<CallType, ReadonlyArray<IWorkflowStepDefinit
         { name: 'gpsCoordinates', label: 'GPS Coordinates', type: 'text', isRequired: false, placeholder: 'Lat, Long' },
         { name: 'reportableSpill', label: 'Reportable Spill?', type: 'select', isRequired: true, options: ['Yes', 'No', 'Unknown'] },
         { name: 'material', label: 'Material', type: 'select', isRequired: true, options: ['Oil', 'Produced Water', 'Oil and Produced Water', 'Steam', 'Acrolein', 'Anhydrous Ammonia', 'Aqueous Ammonia', 'CO2'] },
+        { name: 'waterwayImpacted', label: 'Waterway Impacted?', type: 'select', isRequired: false, options: ['Yes', 'No', 'Unknown'] },
+        { name: 'waterwayType', label: 'Type of Waterway Impacted', type: 'select', isRequired: false, options: ['Named Water Way', 'Unnamed Streambed', 'Ephemeral Streambed/Drainage', 'Intermittent Creek', 'Perennial Streambed', 'Storm Drain', 'Outfall', 'Catch Basin'], conditionalOn: { field: 'waterwayImpacted', value: 'Yes', step: 0 } },
+        { name: 'estimatedVolume', label: 'Estimated Volume', type: 'number', isRequired: false },
+        { name: 'estimatedVolumeUnit', label: 'Volume Unit', type: 'select', isRequired: false, options: ['Gallons', 'Barrels'] },
+        { name: 'estimatedVolumeUnknown', label: 'Volume Unknown', type: 'checkbox', isRequired: false },
+        { name: 'isDotLine', label: 'Is this a DOT Line?', type: 'select', isRequired: false, options: ['Yes', 'No', 'Unknown'] },
         { name: 'briefDescription', label: 'Brief Description', type: 'textarea', isRequired: true },
       ],
     },
@@ -40,7 +46,7 @@ export const WORKFLOW_STEPS: Record<CallType, ReadonlyArray<IWorkflowStepDefinit
       description: 'Complete notifications and documentation',
       isRequired: true,
       fields: [
-        // Operations
+        // Internal Notifications
         { name: 'internalHeader', label: 'Internal Notifications', type: 'section-header', isRequired: false },
         { name: 'ioccCcfSelection', label: 'IOCC / CCF', type: 'select', isRequired: false, options: [...IOCC_CCF_DROPDOWN_OPTIONS] },
         { name: 'hseOnCallSelection', label: 'HSE On-Call', type: 'select', isRequired: false, options: [...HSE_ON_CALL_DROPDOWN_OPTIONS] },
@@ -48,19 +54,16 @@ export const WORKFLOW_STEPS: Record<CallType, ReadonlyArray<IWorkflowStepDefinit
         // If Reportable
         { name: 'reportableHeader', label: 'If Reportable', type: 'section-header', isRequired: false, conditionalOn: { field: 'reportableSpill', value: 'Yes', step: 0 } },
         {
-          name: 'qiNotified', label: 'QI notified', type: 'notification-checkbox', isRequired: false, autoTimestamp: true,
+          name: 'qiSelection', label: 'QI (Qualified Individual)', type: 'select', isRequired: false,
+          options: [...QI_DROPDOWN_OPTIONS],
           conditionalOn: { field: 'reportableSpill', value: 'Yes', step: 0 },
-          subFields: [
-            { name: 'qiName', label: 'Name' },
-            { name: 'qiTime', label: 'Time' },
-          ],
         },
         {
           name: 'calOesNotified', label: 'CalOES — 800-852-7550', type: 'notification-checkbox', isRequired: false, autoTimestamp: true,
           phoneNumber: '800-852-7550',
           conditionalOn: { field: 'reportableSpill', value: 'Yes', step: 0 },
           subFields: [
-            { name: 'calOesTime', label: 'Time' },
+            { name: 'calOesConfirmationNumber', label: 'Confirmation Number' },
           ],
         },
         {
@@ -68,20 +71,30 @@ export const WORKFLOW_STEPS: Record<CallType, ReadonlyArray<IWorkflowStepDefinit
           phoneNumber: '800-424-8802',
           conditionalOn: { field: 'reportableSpill', value: 'Yes', step: 0 },
           subFields: [
-            { name: 'nrcTime', label: 'Time' },
+            { name: 'nrcConfirmationNumber', label: 'Confirmation Number' },
           ],
         },
         {
-          name: 'osroNotified', label: 'OSRO', type: 'notification-checkbox', isRequired: false, autoTimestamp: true,
+          name: 'osroSelection', label: 'OSRO', type: 'select', isRequired: false,
+          options: [...OSRO_DROPDOWN_OPTIONS],
           conditionalOn: { field: 'reportableSpill', value: 'Yes', step: 0 },
-          subFields: [
-            { name: 'osroTime', label: 'Time' },
-          ],
         },
+
+        // Cal OES Verification
+        { name: 'calOesVerificationHeader', label: 'Cal OES Report Verification', type: 'section-header', isRequired: false, conditionalOn: { field: 'reportableSpill', value: 'Yes', step: 0 } },
+        { name: 'calOesReportVerified', label: 'Confirm Cal OES report posting for accurate language', type: 'checkbox', isRequired: false, conditionalOn: { field: 'reportableSpill', value: 'Yes', step: 0 } },
+        // Cal OES Dashboard link: https://veoci.com/v/p/dashboard/7q4z24sxqb
+
+        // External Notifications
+        { name: 'externalHeader', label: 'External Notifications', type: 'section-header', isRequired: false },
+        { name: 'calGemInlandNotified', label: 'CalGEM Inland — 661-322-4031', type: 'notification-checkbox', isRequired: false, autoTimestamp: true, phoneNumber: '661-322-4031' },
+        { name: 'calGemNorthernNotified', label: 'CalGEM Northern District — 916-322-1110', type: 'notification-checkbox', isRequired: false, autoTimestamp: true, phoneNumber: '916-322-1110' },
+        // TODO: [PENDING] Additional external notifications (State Lands, Long Beach, Monterey)
 
         // Documentation
         { name: 'documentationHeader', label: 'Documentation', type: 'section-header', isRequired: false },
         { name: 'kmsNumber', label: 'KMS #', type: 'text', isRequired: false },
+        { name: 'calOesDescription', label: 'Description provided to Cal OES', type: 'textarea', isRequired: false },
         { name: 'notes', label: 'Notes', type: 'textarea', isRequired: false },
       ],
     },
@@ -103,7 +116,7 @@ export const WORKFLOW_STEPS: Record<CallType, ReadonlyArray<IWorkflowStepDefinit
         { name: 'gpsCoordinates', label: 'GPS Coordinates', type: 'text', isRequired: false, placeholder: 'Lat, Long' },
         { name: 'fireActive', label: 'Fire still active?', type: 'select', isRequired: true, options: ['Yes', 'No'] },
         { name: 'pastIncipient', label: 'Past incipient stage?', type: 'select', isRequired: true, options: ['Yes', 'No'] },
-        { name: 'evacuationsNeeded', label: 'Evacuations needed?', type: 'select', isRequired: false, options: ['Yes', 'No'] },
+        { name: 'fireDeptActivation', label: 'Fire Department Activation Required?', type: 'select', isRequired: false, options: ['Yes', 'No'] },
         { name: 'briefDescription', label: 'Brief Description', type: 'textarea', isRequired: true },
       ],
     },
@@ -134,16 +147,16 @@ export const WORKFLOW_STEPS: Record<CallType, ReadonlyArray<IWorkflowStepDefinit
         { name: 'internalHeader', label: 'Internal Notifications', type: 'section-header', isRequired: false },
         { name: 'ioccCcfSelection', label: 'IOCC / CCF', type: 'select', isRequired: false, options: [...IOCC_CCF_DROPDOWN_OPTIONS] },
         { name: 'hseOnCallSelection', label: 'HSE On-Call', type: 'select', isRequired: false, options: [...HSE_ON_CALL_DROPDOWN_OPTIONS] },
-        {
-          name: 'calGemNotified', label: 'CalGEM (at HSE direction)', type: 'notification-checkbox', isRequired: false, autoTimestamp: true,
-          subFields: [
-            { name: 'calGemTime', label: 'Time' },
-          ],
-        },
+        // External Notifications
+        { name: 'externalHeader', label: 'External Notifications', type: 'section-header', isRequired: false },
+        { name: 'calGemInlandNotified', label: 'CalGEM Inland — 661-322-4031', type: 'notification-checkbox', isRequired: false, autoTimestamp: true, phoneNumber: '661-322-4031' },
+        { name: 'calGemNorthernNotified', label: 'CalGEM Northern District — 916-322-1110', type: 'notification-checkbox', isRequired: false, autoTimestamp: true, phoneNumber: '916-322-1110' },
+        // TODO: [PENDING] Additional external notifications (State Lands, Long Beach, Monterey)
 
         // If applicable
         { name: 'ifApplicableHeader', label: 'If applicable', type: 'section-header', isRequired: false },
         { name: 'windWolvesNotified', label: 'Wind Wolves Preserve (Pleito/Landslide/Pioneer/Metson)', type: 'notification-checkbox', isRequired: false, autoTimestamp: true },
+
         // Documentation
         { name: 'documentationHeader', label: 'Documentation', type: 'section-header', isRequired: false },
         { name: 'kmsNumber', label: 'KMS #', type: 'text', isRequired: false },
@@ -166,8 +179,16 @@ export const WORKFLOW_STEPS: Record<CallType, ReadonlyArray<IWorkflowStepDefinit
         { name: 'contactNumber', label: 'Contact Number', type: 'text', isRequired: true },
         { name: 'location', label: 'Location', type: 'location-picker', isRequired: true },
         { name: 'gpsCoordinates', label: 'GPS Coordinates', type: 'text', isRequired: false, placeholder: 'Lat, Long' },
+        { name: 'nonFieldLocation', label: 'Non-Field Location', type: 'select', isRequired: false, options: [...NON_FIELD_LOCATIONS] },
+        { name: 'offCrcProperty', label: 'Off CRC Property', type: 'checkbox', isRequired: false },
+        { name: 'offCrcPropertyLocation', label: 'Location (e.g., 400 W Broadway, Long Beach)', type: 'text', isRequired: false, conditionalOn: { field: 'offCrcProperty', value: true, step: 0 } },
         { name: 'injuryOrIllness', label: 'Injury or Illness?', type: 'select', isRequired: true, options: ['Injury', 'Illness'] },
+        { name: 'bodyPartInjured', label: 'Body Part Injured', type: 'select', isRequired: false, options: ['Head', 'Eye', 'Neck', 'Torso', 'Back', 'Shoulder', 'Arm', 'Hand', 'Hip', 'Leg', 'Knee', 'Foot'] },
+        { name: 'typeOfInjury', label: 'Type of Injury', type: 'select', isRequired: false, options: ['CB — Caught Between / Compressed', 'DLF — Different Level Fall', 'DO — Dropped Object', 'FD — Flying / Impact / Lodged Debris', 'HAZ — Hazardous Substance', 'HI — Heat Illness', 'IU/S — Improper Use / Selection', 'NO — Noise', 'SB — Struck By', 'SLF — Same Level Fall', 'SOE — Strain or Over Exertion'] },
         { name: 'emsRequired', label: 'EMS Required?', type: 'select', isRequired: true, options: ['Yes', 'No'] },
+        { name: 'subjectTransported', label: 'Subject Transported?', type: 'select', isRequired: false, options: ['Yes', 'No'] },
+        { name: 'transportedBy', label: 'Transported By', type: 'select', isRequired: false, options: ['By EMS', 'By Supervisor', 'By Self'], conditionalOn: { field: 'subjectTransported', value: 'Yes', step: 0 } },
+        { name: 'subjectExamined', label: 'Subject Examined by Medical Personnel?', type: 'select', isRequired: false, options: ['Emergency Room', 'Occupational Health'] },
         { name: 'briefDescription', label: 'Brief Description of injury/symptoms', type: 'textarea', isRequired: true },
       ],
     },
@@ -253,6 +274,8 @@ export const WORKFLOW_STEPS: Record<CallType, ReadonlyArray<IWorkflowStepDefinit
         { name: 'ioccCcfSelection', label: 'IOCC / CCF', type: 'select', isRequired: false, options: [...IOCC_CCF_DROPDOWN_OPTIONS] },
         { name: 'hseOnCallSelection', label: 'HSE On-Call', type: 'select', isRequired: false, options: [...HSE_ON_CALL_DROPDOWN_OPTIONS] },
         { name: 'wellServiceTeam', label: 'Well Service Team (if instructed by HSE)', type: 'notification-checkbox', isRequired: false, autoTimestamp: true },
+        // TODO: [PENDING] Well-service team supervisors dropdown
+        // TODO: [PENDING] QI notification for Well Release (Harris confirmation)
 
         // Reportable determination (made during the call)
         { name: 'reportableHeader', label: 'Reportable Determination', type: 'section-header', isRequired: false },
@@ -262,7 +285,7 @@ export const WORKFLOW_STEPS: Record<CallType, ReadonlyArray<IWorkflowStepDefinit
           phoneNumber: '800-852-7550',
           conditionalOn: { field: 'reportable', value: 'Yes', step: 1 },
           subFields: [
-            { name: 'calOesTime', label: 'Time' },
+            { name: 'calOesConfirmationNumber', label: 'Confirmation Number' },
           ],
         },
         {
@@ -270,7 +293,7 @@ export const WORKFLOW_STEPS: Record<CallType, ReadonlyArray<IWorkflowStepDefinit
           phoneNumber: '800-424-8802',
           conditionalOn: { field: 'reportable', value: 'Yes', step: 1 },
           subFields: [
-            { name: 'nrcTime', label: 'Time' },
+            { name: 'nrcConfirmationNumber', label: 'Confirmation Number' },
           ],
         },
 
@@ -398,8 +421,31 @@ export const WORKFLOW_STEPS: Record<CallType, ReadonlyArray<IWorkflowStepDefinit
         { name: 'contactNumber', label: 'Contact Number', type: 'text', isRequired: true },
         { name: 'location', label: 'Location', type: 'location-picker', isRequired: true },
         { name: 'gpsCoordinates', label: 'GPS Coordinates', type: 'text', isRequired: false, placeholder: 'Lat, Long' },
-        { name: 'anyoneInjured', label: 'Anyone injured?', type: 'select', isRequired: true, options: ['Yes', 'No'] },
-        { name: 'whatDidTheyHit', label: 'What did they hit?', type: 'select', isRequired: true, options: ['Vehicle', 'Pipeline', 'Wellhead', 'Bollard', 'Animal', 'Other'] },
+        { name: 'nonFieldLocation', label: 'Non-Field Location', type: 'select', isRequired: false, options: [...NON_FIELD_LOCATIONS] },
+        { name: 'offCrcProperty', label: 'Off CRC Property', type: 'checkbox', isRequired: false },
+        { name: 'offCrcPropertyLocation', label: 'Location of Accident (e.g., N/B Old River at White Lane Bakersfield)', type: 'text', isRequired: false, conditionalOn: { field: 'offCrcProperty', value: true, step: 0 } },
+        { name: 'numberOfInjuredParties', label: 'Number of Injured Parties', type: 'number', isRequired: false },
+        // For each injured party (repeating section based on number entered):
+        { name: 'injuredParty1Header', label: 'Injured Party #1', type: 'section-header', isRequired: false, conditionalOn: { field: 'numberOfInjuredParties', value: ['1', '2', '3', '4', '5'], step: 0 } },
+        { name: 'injuredParty1Type', label: 'Is the injured party an employee?', type: 'select', isRequired: false, options: ['Employee', 'Contractor', 'Third Party'], conditionalOn: { field: 'numberOfInjuredParties', value: ['1', '2', '3', '4', '5'], step: 0 } },
+        { name: 'injuredParty1Severity', label: 'Type of Injury', type: 'select', isRequired: false, options: ['Complaint of pain', 'Minor (Abrasions, bruising, lacerations — first aid on scene)', 'Major (Laceration requiring sutures, broken bones, loss of consciousness, OR transported by EMS)', 'Fatality'], conditionalOn: { field: 'numberOfInjuredParties', value: ['1', '2', '3', '4', '5'], step: 0 } },
+        { name: 'injuredParty1Description', label: 'Description of Injury', type: 'textarea', isRequired: false, conditionalOn: { field: 'numberOfInjuredParties', value: ['1', '2', '3', '4', '5'], step: 0 } },
+        { name: 'injuredParty1Transported', label: 'Transported to Emergency Treatment?', type: 'select', isRequired: false, options: ['Yes', 'No'], conditionalOn: { field: 'numberOfInjuredParties', value: ['1', '2', '3', '4', '5'], step: 0 } },
+        // Second injured party
+        { name: 'injuredParty2Header', label: 'Injured Party #2', type: 'section-header', isRequired: false, conditionalOn: { field: 'numberOfInjuredParties', value: ['2', '3', '4', '5'], step: 0 } },
+        { name: 'injuredParty2Type', label: 'Is the injured party an employee?', type: 'select', isRequired: false, options: ['Employee', 'Contractor', 'Third Party'], conditionalOn: { field: 'numberOfInjuredParties', value: ['2', '3', '4', '5'], step: 0 } },
+        { name: 'injuredParty2Severity', label: 'Type of Injury', type: 'select', isRequired: false, options: ['Complaint of pain', 'Minor (Abrasions, bruising, lacerations — first aid on scene)', 'Major (Laceration requiring sutures, broken bones, loss of consciousness, OR transported by EMS)', 'Fatality'], conditionalOn: { field: 'numberOfInjuredParties', value: ['2', '3', '4', '5'], step: 0 } },
+        { name: 'injuredParty2Description', label: 'Description of Injury', type: 'textarea', isRequired: false, conditionalOn: { field: 'numberOfInjuredParties', value: ['2', '3', '4', '5'], step: 0 } },
+        { name: 'injuredParty2Transported', label: 'Transported to Emergency Treatment?', type: 'select', isRequired: false, options: ['Yes', 'No'], conditionalOn: { field: 'numberOfInjuredParties', value: ['2', '3', '4', '5'], step: 0 } },
+        // Third injured party
+        { name: 'injuredParty3Header', label: 'Injured Party #3', type: 'section-header', isRequired: false, conditionalOn: { field: 'numberOfInjuredParties', value: ['3', '4', '5'], step: 0 } },
+        { name: 'injuredParty3Type', label: 'Is the injured party an employee?', type: 'select', isRequired: false, options: ['Employee', 'Contractor', 'Third Party'], conditionalOn: { field: 'numberOfInjuredParties', value: ['3', '4', '5'], step: 0 } },
+        { name: 'injuredParty3Severity', label: 'Type of Injury', type: 'select', isRequired: false, options: ['Complaint of pain', 'Minor (Abrasions, bruising, lacerations — first aid on scene)', 'Major (Laceration requiring sutures, broken bones, loss of consciousness, OR transported by EMS)', 'Fatality'], conditionalOn: { field: 'numberOfInjuredParties', value: ['3', '4', '5'], step: 0 } },
+        { name: 'injuredParty3Description', label: 'Description of Injury', type: 'textarea', isRequired: false, conditionalOn: { field: 'numberOfInjuredParties', value: ['3', '4', '5'], step: 0 } },
+        { name: 'injuredParty3Transported', label: 'Transported to Emergency Treatment?', type: 'select', isRequired: false, options: ['Yes', 'No'], conditionalOn: { field: 'numberOfInjuredParties', value: ['3', '4', '5'], step: 0 } },
+        { name: 'vehicleInvolvedWith', label: 'Vehicle Involved With', type: 'select', isRequired: true, options: ['Other Vehicle(s)', 'Fixed Object', 'Pedestrian', 'Animal'] },
+        { name: 'fixedObjectType', label: 'Type of Fixed Object', type: 'text', isRequired: false, conditionalOn: { field: 'vehicleInvolvedWith', value: 'Fixed Object', step: 0 } },
+        { name: 'memberOfPublicInvolved', label: 'Member of the Public Involved?', type: 'select', isRequired: false, options: ['Yes', 'No'] },
         { name: 'briefDescription', label: 'Brief Description', type: 'textarea', isRequired: true },
         { name: 'photoSentToCoc', label: 'Photo sent to COC cell?', type: 'checkbox', isRequired: false },
       ],
@@ -428,6 +474,13 @@ export const WORKFLOW_STEPS: Record<CallType, ReadonlyArray<IWorkflowStepDefinit
         { name: 'internalHeader', label: 'Internal Notifications', type: 'section-header', isRequired: false },
         { name: 'ioccCcfSelection', label: 'IOCC / CCF', type: 'select', isRequired: false, options: [...IOCC_CCF_DROPDOWN_OPTIONS] },
         { name: 'hseOnCallSelection', label: 'HSE On-Call', type: 'select', isRequired: false, options: [...HSE_ON_CALL_DROPDOWN_OPTIONS] },
+
+        // Law Enforcement
+        { name: 'lawEnforcementHeader', label: 'Law Enforcement', type: 'section-header', isRequired: false },
+        { name: 'lawEnforcementResponded', label: 'Did Law Enforcement Respond?', type: 'select', isRequired: false, options: ['Yes', 'No'] },
+        { name: 'accidentReportTaken', label: 'Was an Accident Report Taken?', type: 'select', isRequired: false, options: ['Yes', 'No'] },
+        { name: 'reportingAgency', label: 'Reporting Agency', type: 'text', isRequired: false, conditionalOn: { field: 'accidentReportTaken', value: 'Yes', step: 1 } },
+        { name: 'reportNumber', label: 'Report Number', type: 'text', isRequired: false, conditionalOn: { field: 'accidentReportTaken', value: 'Yes', step: 1 } },
 
         // Documentation
         { name: 'documentationHeader', label: 'Documentation', type: 'section-header', isRequired: false },
