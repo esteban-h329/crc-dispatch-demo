@@ -17,11 +17,10 @@ export interface ILocationPickerValue {
   readonly locationId: string;
   readonly productionComplex: string;
   readonly _locationEntityName: string;
-  readonly _locationCounty: string;
-  readonly _locationCupa: string;
-  readonly _locationCupaPhone: string;
-  readonly _locationLawEnforcement: string;
-  readonly _locationIsSJV: boolean;
+  readonly _locationSupervisor: string;
+  readonly _locationMaintenanceSupervisor: string;
+  readonly _locationOperatingArea: string;
+  readonly _locationIsRegulated: boolean;
 }
 
 interface ILocationPickerProps {
@@ -34,6 +33,8 @@ const COMPLEX_OPTIONS: ReadonlyArray<ProductionComplex> = [
   ProductionComplex.ElkHills,
   ProductionComplex.Belridge,
   ProductionComplex.Wilmington,
+  ProductionComplex.CarbonTerraVault,
+  ProductionComplex.NonOperatingArea,
 ];
 
 export const LocationPicker: React.FC<ILocationPickerProps> = ({
@@ -41,7 +42,6 @@ export const LocationPicker: React.FC<ILocationPickerProps> = ({
   onChange,
   onBlur,
 }) => {
-  // Resolve the selected complex and location from value
   const resolvedValue = typeof value === 'object' && value !== null ? value : undefined;
   const [selectedComplex, setSelectedComplex] = React.useState<ProductionComplex | undefined>(
     resolvedValue?.productionComplex as ProductionComplex | undefined,
@@ -73,15 +73,38 @@ export const LocationPicker: React.FC<ILocationPickerProps> = ({
         locationId: location.id,
         productionComplex: selectedComplex,
         _locationEntityName: location.entityName,
-        _locationCounty: location.county,
-        _locationCupa: location.cupa,
-        _locationCupaPhone: location.cupaPhone ?? '',
-        _locationLawEnforcement: location.lawEnforcement,
-        _locationIsSJV: location.isSJV,
+        _locationSupervisor: location.fieldManagerSupervisor,
+        _locationMaintenanceSupervisor: location.maintenanceSupervisor,
+        _locationOperatingArea: location.operatingArea ?? '',
+        _locationIsRegulated: location.isRegulatedFacility,
       });
     },
     [selectedComplex, onChange],
   );
+
+  // Group locations by operating area for better UX
+  const groupedLocations = React.useMemo(() => {
+    const groups: Array<{ area: string; locations: ReadonlyArray<ILocation> }> = [];
+    let currentArea = '';
+    let currentGroup: ILocation[] = [];
+
+    for (const loc of filteredLocations) {
+      const area = loc.operatingArea ?? '';
+      if (area !== currentArea) {
+        if (currentGroup.length > 0) {
+          groups.push({ area: currentArea, locations: currentGroup });
+        }
+        currentArea = area;
+        currentGroup = [loc];
+      } else {
+        currentGroup.push(loc);
+      }
+    }
+    if (currentGroup.length > 0) {
+      groups.push({ area: currentArea, locations: currentGroup });
+    }
+    return groups;
+  }, [filteredLocations]);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -112,11 +135,13 @@ export const LocationPicker: React.FC<ILocationPickerProps> = ({
             onBlur={onBlur}
             placeholder="Select location"
           >
-            {filteredLocations.map((loc) => (
-              <Option key={loc.id} value={loc.id}>
-                {loc.name}
-              </Option>
-            ))}
+            {groupedLocations.map((group) =>
+              group.locations.map((loc) => (
+                <Option key={loc.id} value={loc.id}>
+                  {loc.operatingArea ? `${loc.name}` : loc.name}
+                </Option>
+              )),
+            )}
           </Dropdown>
         </Field>
       )}
@@ -135,14 +160,30 @@ export const LocationPicker: React.FC<ILocationPickerProps> = ({
             color: tokens.colorNeutralForeground2,
           }}
         >
-          <Body1 style={{ fontWeight: 600 }}>Entity:</Body1>
-          <Body1>{selectedLocation.entityName}</Body1>
-          <Body1 style={{ fontWeight: 600 }}>County:</Body1>
-          <Body1>{selectedLocation.county}</Body1>
-          <Body1 style={{ fontWeight: 600 }}>CUPA:</Body1>
-          <Body1>{selectedLocation.cupa}</Body1>
-          <Body1 style={{ fontWeight: 600 }}>Law Enforcement:</Body1>
-          <Body1>{selectedLocation.lawEnforcement}</Body1>
+          {selectedLocation.entityName && (
+            <>
+              <Body1 style={{ fontWeight: 600 }}>Entity:</Body1>
+              <Body1>{selectedLocation.entityName}</Body1>
+            </>
+          )}
+          {selectedLocation.fieldManagerSupervisor && (
+            <>
+              <Body1 style={{ fontWeight: 600 }}>Field Manager:</Body1>
+              <Body1>{selectedLocation.fieldManagerSupervisor}</Body1>
+            </>
+          )}
+          {selectedLocation.maintenanceSupervisor && (
+            <>
+              <Body1 style={{ fontWeight: 600 }}>Maintenance Sup:</Body1>
+              <Body1>{selectedLocation.maintenanceSupervisor}</Body1>
+            </>
+          )}
+          {selectedLocation.isRegulatedFacility && (
+            <>
+              <Body1 style={{ fontWeight: 600 }}>Regulated:</Body1>
+              <Body1>{selectedLocation.synonyms}</Body1>
+            </>
+          )}
         </div>
       )}
     </div>
