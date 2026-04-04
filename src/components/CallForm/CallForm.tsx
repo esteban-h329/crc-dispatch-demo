@@ -4,9 +4,10 @@ import {
   Title2,
   Body1,
   Button,
+  Input,
   tokens,
 } from '@fluentui/react-components';
-import { AddRegular, ArrowEnterLeftRegular, TimerRegular } from '@fluentui/react-icons';
+import { AddRegular, ArrowEnterLeftRegular, TimerRegular, ArrowRightRegular, PersonRegular, CallRegular } from '@fluentui/react-icons';
 import { useCallFormWorkflow } from './use-call-form-workflow';
 import { CallTypeSelector } from './call-type-selector';
 import { WorkflowStepper } from './workflow-stepper';
@@ -228,7 +229,7 @@ export const CallForm: React.FC<ICallFormProps> = ({ onCallStarted, onCallEnded,
       )}
 
       {/* Banner: active call on hold — resume or start new */}
-      {workflow.callPhase === 'type-selection' && state.activeCall && (
+      {(workflow.callPhase === 'caller-info' || workflow.callPhase === 'type-selection') && state.activeCall && (
         <div
           style={{
             display: 'flex',
@@ -345,6 +346,62 @@ export const CallForm: React.FC<ICallFormProps> = ({ onCallStarted, onCallEnded,
               </span>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Caller Info intake screen */}
+      {workflow.callPhase === 'caller-info' && (
+        <div style={{ maxWidth: '480px', margin: '0 auto', animation: 'crc-fade-in 300ms ease' }}>
+          <h2 style={{
+            fontFamily: CRC_TYPOGRAPHY.fontFamilyHeading,
+            fontWeight: CRC_TYPOGRAPHY.fontWeightBold,
+            fontSize: '22px',
+            color: CRC_COLORS.navy,
+            letterSpacing: '-0.02em',
+            margin: '0 0 24px 0',
+          }}>
+            New Call
+          </h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div>
+              <label style={{ display: 'block', fontWeight: 600, fontSize: '13px', color: CRC_COLORS.navy, marginBottom: '6px' }}>
+                Contact Phone Number
+              </label>
+              <Input
+                contentBefore={<CallRegular />}
+                placeholder="Phone number"
+                value={workflow.callerInfo.contactPhone}
+                onChange={(_e, data) => workflow.setCallerInfo({ ...workflow.callerInfo, contactPhone: data.value })}
+                style={{ width: '100%' }}
+                appearance="outline"
+                size="medium"
+              />
+            </div>
+            <div>
+              <label style={{ display: 'block', fontWeight: 600, fontSize: '13px', color: CRC_COLORS.navy, marginBottom: '6px' }}>
+                Caller Name
+              </label>
+              <Input
+                contentBefore={<PersonRegular />}
+                placeholder="Caller name"
+                value={workflow.callerInfo.callerName}
+                onChange={(_e, data) => workflow.setCallerInfo({ ...workflow.callerInfo, callerName: data.value })}
+                style={{ width: '100%' }}
+                appearance="outline"
+                size="medium"
+              />
+            </div>
+            <Button
+              appearance="primary"
+              icon={<ArrowRightRegular />}
+              iconPosition="after"
+              onClick={workflow.proceedToTypeSelection}
+              style={{ alignSelf: 'flex-end', borderRadius: '8px', marginTop: '8px' }}
+              size="medium"
+            >
+              Select Call Type
+            </Button>
+          </div>
         </div>
       )}
 

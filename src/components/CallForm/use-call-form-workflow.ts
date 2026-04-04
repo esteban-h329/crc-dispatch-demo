@@ -7,12 +7,18 @@ import { NoteType } from '../../models';
 import { useAppContext } from '../../context/AppContext';
 import { getLocationById } from '../../config/location-data';
 
-export type CallPhase = 'type-selection' | 'workflow-steps' | 'completed';
+export type CallPhase = 'caller-info' | 'type-selection' | 'workflow-steps' | 'completed';
 
 const AUTO_SAVE_DELAY = 3000;
 
+export interface ICallerInfo {
+  readonly callerName: string;
+  readonly contactPhone: string;
+}
+
 interface ICallFormWorkflowResult {
   readonly callPhase: CallPhase;
+  readonly callerInfo: ICallerInfo;
   readonly selectedCallType: ICallTypeConfig | undefined;
   readonly callId: number | undefined;
   readonly activeStepIndex: number;
@@ -22,6 +28,8 @@ interface ICallFormWorkflowResult {
   readonly isSubmitting: boolean;
   readonly lastAutoSavedAt: number;
 
+  readonly setCallerInfo: (info: ICallerInfo) => void;
+  readonly proceedToTypeSelection: () => void;
   readonly selectCallType: (config: ICallTypeConfig) => Promise<void>;
   readonly goToStep: (index: number) => void;
   readonly saveStepData: (index: number, data: Record<string, unknown>) => void;
@@ -44,7 +52,8 @@ export const useCallFormWorkflow = (
 ): ICallFormWorkflowResult => {
   const { dispatch } = useAppContext();
 
-  const [callPhase, setCallPhase] = React.useState<CallPhase>('type-selection');
+  const [callPhase, setCallPhase] = React.useState<CallPhase>('caller-info');
+  const [callerInfo, setCallerInfoState] = React.useState<ICallerInfo>({ callerName: '', contactPhone: '' });
   const [selectedCallType, setSelectedCallType] = React.useState<ICallTypeConfig | undefined>(undefined);
   const [callId, setCallId] = React.useState<number | undefined>(undefined);
   const [activeStepIndex, setActiveStepIndex] = React.useState(0);
@@ -58,6 +67,14 @@ export const useCallFormWorkflow = (
 
   const steps = selectedCallType?.steps ?? [];
 
+  const setCallerInfo = React.useCallback((info: ICallerInfo) => {
+    setCallerInfoState(info);
+  }, []);
+
+  const proceedToTypeSelection = React.useCallback(() => {
+    setCallPhase('type-selection');
+  }, []);
+
   // Cleanup auto-save timer on unmount
   React.useEffect(() => {
     return () => {
@@ -68,7 +85,15 @@ export const useCallFormWorkflow = (
   const selectCallType = React.useCallback(async (config: ICallTypeConfig) => {
     setSelectedCallType(config);
     setStepStatuses(config.steps.map(() => StepStatus.Pending));
-    setStepDataMap({});
+    // Pre-populate Step 1 with caller info from intake screen
+    const initialStepData: Record<number, Record<string, unknown>> = {};
+    if (callerInfo.callerName || callerInfo.contactPhone) {
+      initialStepData[0] = {
+        callerName: callerInfo.callerName,
+        contactNumber: callerInfo.contactPhone,
+      };
+    }
+    setStepDataMap(initialStepData);
     setActiveStepIndex(0);
     setIsSubmitting(true);
 
@@ -77,8 +102,8 @@ export const useCallFormWorkflow = (
       const formData: ICallFormData = {
         callType: config.type,
         priority: config.defaultPriority,
-        callerName: '',
-        callerPhone: '',
+        callerName: callerInfo.callerName,
+        callerPhone: callerInfo.contactPhone,
         location: '',
         summary: '',
       };
@@ -262,7 +287,8 @@ export const useCallFormWorkflow = (
     }
 
     dispatch({ type: 'CLEAR_ACTIVE_CALL' });
-    setCallPhase('type-selection');
+    setCallPhase('caller-info');
+    setCallerInfoState({ callerName: '', contactPhone: '' });
     setSelectedCallType(undefined);
     setCallId(undefined);
     setStepStatuses([]);
@@ -392,7 +418,8 @@ export const useCallFormWorkflow = (
   }, [dispatch]);
 
   const resetForm = React.useCallback(() => {
-    setCallPhase('type-selection');
+    setCallPhase('caller-info');
+    setCallerInfoState({ callerName: '', contactPhone: '' });
     setSelectedCallType(undefined);
     setCallId(undefined);
     setStepStatuses([]);
@@ -404,6 +431,9 @@ export const useCallFormWorkflow = (
 
   return {
     callPhase,
+    callerInfo,
+    setCallerInfo,
+    proceedToTypeSelection,
     selectedCallType,
     callId,
     activeStepIndex,
