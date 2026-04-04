@@ -129,7 +129,7 @@ export const useCallFormWorkflow = (
     } finally {
       setIsSubmitting(false);
     }
-  }, [dispatch, onCallStarted]);
+  }, [callerInfo, dispatch, onCallStarted]);
 
   const goToStep = React.useCallback((index: number) => {
     setActiveStepIndex(index);
