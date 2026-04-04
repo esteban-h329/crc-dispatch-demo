@@ -156,9 +156,10 @@ const selectedCheckStyle: React.CSSProperties = {
 
 interface ICallTypeSelectorProps {
   readonly onSelect: (config: ICallTypeConfig) => void;
+  readonly disabled?: boolean;
 }
 
-export const CallTypeSelector: React.FC<ICallTypeSelectorProps> = ({ onSelect }) => {
+export const CallTypeSelector: React.FC<ICallTypeSelectorProps> = ({ onSelect, disabled }) => {
   const [searchQuery, setSearchQuery] = React.useState('');
   const [hoveredType, setHoveredType] = React.useState<CallType | undefined>(undefined);
   const [selectedType, setSelectedType] = React.useState<CallType | undefined>(undefined);
@@ -175,11 +176,12 @@ export const CallTypeSelector: React.FC<ICallTypeSelectorProps> = ({ onSelect })
 
   const handleSelect = React.useCallback(
     (config: ICallTypeConfig) => {
+      if (disabled) return;
       setSelectedType(config.type);
       // Brief delay so the user sees the selected state before transitioning
       setTimeout(() => onSelect(config), 200);
     },
-    [onSelect],
+    [onSelect, disabled],
   );
 
   return (
@@ -203,7 +205,12 @@ export const CallTypeSelector: React.FC<ICallTypeSelectorProps> = ({ onSelect })
       </div>
 
       {/* Cards grid */}
-      <div style={gridStyle}>
+      <div style={{
+        ...gridStyle,
+        opacity: disabled ? 0.45 : 1,
+        pointerEvents: disabled ? 'none' : 'auto',
+        transition: 'opacity 300ms ease',
+      }}>
         {filteredConfigs.map((config, index) => {
           const borderColor = PRIORITY_BORDER_COLOR[config.defaultPriority];
           const isHovered = hoveredType === config.type;

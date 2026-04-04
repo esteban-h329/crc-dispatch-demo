@@ -349,52 +349,118 @@ export const CallForm: React.FC<ICallFormProps> = ({ onCallStarted, onCallEnded,
         </div>
       )}
 
-      {workflow.callPhase === 'type-selection' && (
-        <div>
-          {/* Caller info fields above the call type cards */}
-          <div style={{
-            display: 'flex',
-            gap: '16px',
-            marginBottom: '20px',
-            padding: '16px 20px',
-            backgroundColor: '#F8FAFC',
-            borderRadius: '10px',
-            border: '1px solid rgba(0, 32, 74, 0.08)',
-            alignItems: 'flex-end',
-          }}>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <label style={{ display: 'block', fontWeight: 600, fontSize: '12px', color: CRC_COLORS.navy, marginBottom: '4px' }}>
-                Contact Phone Number
-              </label>
-              <Input
-                contentBefore={<CallRegular />}
-                placeholder="Phone number"
-                value={workflow.callerInfo.contactPhone}
-                onChange={(_e, data) => workflow.setCallerInfo({ ...workflow.callerInfo, contactPhone: data.value })}
-                style={{ width: '100%' }}
-                appearance="outline"
-                size="medium"
-              />
-            </div>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <label style={{ display: 'block', fontWeight: 600, fontSize: '12px', color: CRC_COLORS.navy, marginBottom: '4px' }}>
-                Caller Name
-              </label>
-              <Input
-                contentBefore={<PersonRegular />}
-                placeholder="Caller name"
-                value={workflow.callerInfo.callerName}
-                onChange={(_e, data) => workflow.setCallerInfo({ ...workflow.callerInfo, callerName: data.value })}
-                style={{ width: '100%' }}
-                appearance="outline"
-                size="medium"
-              />
-            </div>
-          </div>
+      {workflow.callPhase === 'type-selection' && (() => {
+        const hasCallerInfo = workflow.callerInfo.contactPhone.trim().length > 0 || workflow.callerInfo.callerName.trim().length > 0;
+        return (
+          <div>
+            {/* Caller info intake */}
+            <div style={{
+              marginBottom: '24px',
+              padding: '20px 24px',
+              backgroundColor: hasCallerInfo ? `${CRC_COLORS.success}08` : '#FAFBFD',
+              borderRadius: '12px',
+              border: `1.5px solid ${hasCallerInfo ? `${CRC_COLORS.success}30` : `${CRC_COLORS.accentBlue}20`}`,
+              transition: 'all 300ms ease',
+            }}>
+              {/* Header with step indicator */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
+                <div style={{
+                  width: '24px',
+                  height: '24px',
+                  borderRadius: '50%',
+                  backgroundColor: hasCallerInfo ? CRC_COLORS.success : CRC_COLORS.accentBlue,
+                  color: '#fff',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '12px',
+                  fontWeight: 700,
+                  flexShrink: 0,
+                  transition: 'background-color 300ms ease',
+                }}>
+                  {hasCallerInfo ? '✓' : '1'}
+                </div>
+                <span style={{
+                  fontFamily: CRC_TYPOGRAPHY.fontFamilyHeading,
+                  fontWeight: CRC_TYPOGRAPHY.fontWeightBold,
+                  fontSize: '15px',
+                  color: CRC_COLORS.navy,
+                }}>
+                  Caller Information
+                </span>
+                {!hasCallerInfo && (
+                  <span style={{ fontSize: '12px', color: CRC_COLORS.accentBlue, fontWeight: 500 }}>
+                    — Enter caller details to begin
+                  </span>
+                )}
+              </div>
 
-          <CallTypeSelector onSelect={workflow.selectCallType} />
-        </div>
-      )}
+              {/* Fields row */}
+              <div style={{ display: 'flex', gap: '16px' }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <label style={{ display: 'block', fontWeight: 600, fontSize: '12px', color: CRC_COLORS.navy, marginBottom: '4px' }}>
+                    Contact Phone Number
+                  </label>
+                  <Input
+                    contentBefore={<CallRegular />}
+                    placeholder="(___) ___-____"
+                    value={workflow.callerInfo.contactPhone}
+                    onChange={(_e, data) => workflow.setCallerInfo({ ...workflow.callerInfo, contactPhone: data.value })}
+                    style={{ width: '100%' }}
+                    appearance="outline"
+                    size="medium"
+                  />
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <label style={{ display: 'block', fontWeight: 600, fontSize: '12px', color: CRC_COLORS.navy, marginBottom: '4px' }}>
+                    Caller Name
+                  </label>
+                  <Input
+                    contentBefore={<PersonRegular />}
+                    placeholder="First and last name"
+                    value={workflow.callerInfo.callerName}
+                    onChange={(_e, data) => workflow.setCallerInfo({ ...workflow.callerInfo, callerName: data.value })}
+                    style={{ width: '100%' }}
+                    appearance="outline"
+                    size="medium"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Step 2 indicator for call type selection */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
+              <div style={{
+                width: '24px',
+                height: '24px',
+                borderRadius: '50%',
+                backgroundColor: hasCallerInfo ? CRC_COLORS.accentBlue : '#CBD5E1',
+                color: '#fff',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '12px',
+                fontWeight: 700,
+                flexShrink: 0,
+                transition: 'background-color 300ms ease',
+              }}>
+                2
+              </div>
+              <span style={{
+                fontFamily: CRC_TYPOGRAPHY.fontFamilyHeading,
+                fontWeight: CRC_TYPOGRAPHY.fontWeightBold,
+                fontSize: '15px',
+                color: hasCallerInfo ? CRC_COLORS.navy : '#94A3B8',
+                transition: 'color 300ms ease',
+              }}>
+                Select Call Type
+              </span>
+            </div>
+
+            <CallTypeSelector onSelect={workflow.selectCallType} disabled={!hasCallerInfo} />
+          </div>
+        );
+      })()}
 
       {workflow.callPhase === 'workflow-steps' && activeStep !== undefined && (
         <div>
