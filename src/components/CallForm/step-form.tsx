@@ -40,9 +40,20 @@ export const StepForm: React.FC<IStepFormProps> = ({
   onReopen,
   isSubmitting,
 }) => {
-  const { control, handleSubmit, watch } = useForm<FieldValues>({
+  const { control, handleSubmit, watch, reset } = useForm<FieldValues>({
     defaultValues: initialData,
   });
+
+  // Sync form when initialData changes (e.g. caller info pre-population)
+  const initialDataRef = React.useRef(initialData);
+  React.useEffect(() => {
+    const prev = initialDataRef.current;
+    initialDataRef.current = initialData;
+    // Only reset if the data actually changed and form has no user edits yet
+    if (JSON.stringify(prev) !== JSON.stringify(initialData)) {
+      reset(initialData);
+    }
+  }, [initialData, reset]);
 
   // Filter fields based on conditional visibility
   const visibleFields = useConditionalFields(step.fields, stepDataMap, currentStepIndex);
