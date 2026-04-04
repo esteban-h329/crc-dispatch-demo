@@ -7,7 +7,7 @@ import { NoteType } from '../../models';
 import { useAppContext } from '../../context/AppContext';
 import { getLocationById } from '../../config/location-data';
 
-export type CallPhase = 'caller-info' | 'type-selection' | 'workflow-steps' | 'completed';
+export type CallPhase = 'type-selection' | 'workflow-steps' | 'completed';
 
 const AUTO_SAVE_DELAY = 3000;
 
@@ -29,7 +29,6 @@ interface ICallFormWorkflowResult {
   readonly lastAutoSavedAt: number;
 
   readonly setCallerInfo: (info: ICallerInfo) => void;
-  readonly proceedToTypeSelection: () => void;
   readonly selectCallType: (config: ICallTypeConfig) => Promise<void>;
   readonly goToStep: (index: number) => void;
   readonly saveStepData: (index: number, data: Record<string, unknown>) => void;
@@ -52,7 +51,7 @@ export const useCallFormWorkflow = (
 ): ICallFormWorkflowResult => {
   const { dispatch } = useAppContext();
 
-  const [callPhase, setCallPhase] = React.useState<CallPhase>('caller-info');
+  const [callPhase, setCallPhase] = React.useState<CallPhase>('type-selection');
   const [callerInfo, setCallerInfoState] = React.useState<ICallerInfo>({ callerName: '', contactPhone: '' });
   const [selectedCallType, setSelectedCallType] = React.useState<ICallTypeConfig | undefined>(undefined);
   const [callId, setCallId] = React.useState<number | undefined>(undefined);
@@ -69,10 +68,6 @@ export const useCallFormWorkflow = (
 
   const setCallerInfo = React.useCallback((info: ICallerInfo) => {
     setCallerInfoState(info);
-  }, []);
-
-  const proceedToTypeSelection = React.useCallback(() => {
-    setCallPhase('type-selection');
   }, []);
 
   // Cleanup auto-save timer on unmount
@@ -287,7 +282,7 @@ export const useCallFormWorkflow = (
     }
 
     dispatch({ type: 'CLEAR_ACTIVE_CALL' });
-    setCallPhase('caller-info');
+    setCallPhase('type-selection');
     setCallerInfoState({ callerName: '', contactPhone: '' });
     setSelectedCallType(undefined);
     setCallId(undefined);
@@ -418,7 +413,7 @@ export const useCallFormWorkflow = (
   }, [dispatch]);
 
   const resetForm = React.useCallback(() => {
-    setCallPhase('caller-info');
+    setCallPhase('type-selection');
     setCallerInfoState({ callerName: '', contactPhone: '' });
     setSelectedCallType(undefined);
     setCallId(undefined);
@@ -433,7 +428,6 @@ export const useCallFormWorkflow = (
     callPhase,
     callerInfo,
     setCallerInfo,
-    proceedToTypeSelection,
     selectedCallType,
     callId,
     activeStepIndex,

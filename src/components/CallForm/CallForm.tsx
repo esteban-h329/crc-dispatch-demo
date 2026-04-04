@@ -7,7 +7,7 @@ import {
   Input,
   tokens,
 } from '@fluentui/react-components';
-import { AddRegular, ArrowEnterLeftRegular, TimerRegular, ArrowRightRegular, PersonRegular, CallRegular } from '@fluentui/react-icons';
+import { AddRegular, ArrowEnterLeftRegular, TimerRegular, PersonRegular, CallRegular } from '@fluentui/react-icons';
 import { useCallFormWorkflow } from './use-call-form-workflow';
 import { CallTypeSelector } from './call-type-selector';
 import { WorkflowStepper } from './workflow-stepper';
@@ -229,7 +229,7 @@ export const CallForm: React.FC<ICallFormProps> = ({ onCallStarted, onCallEnded,
       )}
 
       {/* Banner: active call on hold — resume or start new */}
-      {(workflow.callPhase === 'caller-info' || workflow.callPhase === 'type-selection') && state.activeCall && (
+      {workflow.callPhase === 'type-selection' && state.activeCall && (
         <div
           style={{
             display: 'flex',
@@ -349,22 +349,21 @@ export const CallForm: React.FC<ICallFormProps> = ({ onCallStarted, onCallEnded,
         </div>
       )}
 
-      {/* Caller Info intake screen */}
-      {workflow.callPhase === 'caller-info' && (
-        <div style={{ maxWidth: '480px', margin: '0 auto', animation: 'crc-fade-in 300ms ease' }}>
-          <h2 style={{
-            fontFamily: CRC_TYPOGRAPHY.fontFamilyHeading,
-            fontWeight: CRC_TYPOGRAPHY.fontWeightBold,
-            fontSize: '22px',
-            color: CRC_COLORS.navy,
-            letterSpacing: '-0.02em',
-            margin: '0 0 24px 0',
+      {workflow.callPhase === 'type-selection' && (
+        <div>
+          {/* Caller info fields above the call type cards */}
+          <div style={{
+            display: 'flex',
+            gap: '16px',
+            marginBottom: '20px',
+            padding: '16px 20px',
+            backgroundColor: '#F8FAFC',
+            borderRadius: '10px',
+            border: '1px solid rgba(0, 32, 74, 0.08)',
+            alignItems: 'flex-end',
           }}>
-            New Call
-          </h2>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <div>
-              <label style={{ display: 'block', fontWeight: 600, fontSize: '13px', color: CRC_COLORS.navy, marginBottom: '6px' }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <label style={{ display: 'block', fontWeight: 600, fontSize: '12px', color: CRC_COLORS.navy, marginBottom: '4px' }}>
                 Contact Phone Number
               </label>
               <Input
@@ -377,8 +376,8 @@ export const CallForm: React.FC<ICallFormProps> = ({ onCallStarted, onCallEnded,
                 size="medium"
               />
             </div>
-            <div>
-              <label style={{ display: 'block', fontWeight: 600, fontSize: '13px', color: CRC_COLORS.navy, marginBottom: '6px' }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <label style={{ display: 'block', fontWeight: 600, fontSize: '12px', color: CRC_COLORS.navy, marginBottom: '4px' }}>
                 Caller Name
               </label>
               <Input
@@ -391,22 +390,10 @@ export const CallForm: React.FC<ICallFormProps> = ({ onCallStarted, onCallEnded,
                 size="medium"
               />
             </div>
-            <Button
-              appearance="primary"
-              icon={<ArrowRightRegular />}
-              iconPosition="after"
-              onClick={workflow.proceedToTypeSelection}
-              style={{ alignSelf: 'flex-end', borderRadius: '8px', marginTop: '8px' }}
-              size="medium"
-            >
-              Select Call Type
-            </Button>
           </div>
-        </div>
-      )}
 
-      {workflow.callPhase === 'type-selection' && (
-        <CallTypeSelector onSelect={workflow.selectCallType} />
+          <CallTypeSelector onSelect={workflow.selectCallType} />
+        </div>
       )}
 
       {workflow.callPhase === 'workflow-steps' && activeStep !== undefined && (
