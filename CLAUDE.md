@@ -1,5 +1,8 @@
 # CLAUDE.md — crc-dispatch-demo
 
+## Tipo
+`web-app (TypeScript)` — sigue `00-CORE/Project-Standard.md` del vault.
+
 Prototipo/demo del sistema de dispatch HSE para presentaciones a stakeholders (Stephanie Davidson, Richard Hill) antes del deploy en SharePoint. Se despliega en Netlify con build esbuild personalizado. Comparte la misma logica de UI y config que `crc-dispatch`, pero sin dependencias de SPFx ni PnPjs.
 
 ## Vault
